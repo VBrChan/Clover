@@ -32,8 +32,11 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+import java.util.Objects;
 
 public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanReaderResponse> {
     private static final String TAG = "ChanReaderRequest";
@@ -251,10 +254,13 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                     post.rawComment = reader.nextString();
                     break;
                 case "tim":
-                    post.tim = reader.nextLong();
+                    post.tim = reader.nextString();
                     break;
                 case "time":
                     post.time = reader.nextLong();
+                    Date df = new java.util.Date(post.time * 1000);
+                    String data = new SimpleDateFormat("MM/dd/yyyy(ddd)HH:mm:ss").format(df);
+                    post.date = data;
                     break;
                 case "ext":
                     post.ext = reader.nextString().replace(".", "");
@@ -312,6 +318,32 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                     break;
                 case "unique_ips":
                     post.uniqueIps = reader.nextInt();
+                    break;
+                case "embed":
+                    String teste = reader.nextString();
+
+                    post.tim = "Y0xQjJ8-ooA";
+                    String linkteste;
+                    String linkyoutube = "https://www.youtube.com/Y0xQjJ8-ooA";
+                    linkteste = " <br/><br/>" +
+                                    " <a " +
+                                        " href=\"http://privatelink.de/?"+ linkyoutube +"\" " +
+                                        " rel=\"nofollow\" " +
+                                        " target=\"_blank\">"+ linkyoutube +
+                                    " </a>"+
+                                " <br/>";
+
+
+                    if (post.rawComment == null){
+                        post.rawComment = linkteste;
+                    }else{
+                        post.rawComment = post.rawComment.concat(linkteste);
+                    }
+
+                    post.filename = "TESTE";
+                    post.ext = "yutb";
+                    post.imageHeight = 640;
+                    post.imageWidth = 480;
                     break;
                 default:
                     // Unknown/ignored key

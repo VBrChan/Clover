@@ -335,7 +335,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             titleParts.add("\n");
         }
 
-        titleParts.add(post.nameTripcodeIdCapcodeSpan);
+        if (post.nameTripcodeIdCapcodeSpan == null)
+            titleParts.add("Anonimo");
+        else
+            titleParts.add(post.nameTripcodeIdCapcodeSpan);
 
         CharSequence time;
         if (ChanSettings.postFullDate.get()) {
@@ -366,7 +369,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         titleParts.add(date);
 
         if (post.hasImage) {
-            PostImage image = post.image;
+            PostImage image = post.image.get(0);
+            //List<PostImage> image = post.image;
 
             boolean postFileName = ChanSettings.postFilename.get();
             if (postFileName) {
@@ -388,7 +392,9 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             }
         }
 
-        title.setText(TextUtils.concat(titleParts.toArray(new CharSequence[titleParts.size()])));
+
+        CharSequence textTeste = TextUtils.concat(titleParts.toArray(new CharSequence[titleParts.size()]));
+        title.setText(textTeste);
 
         icons.edit();
         icons.set(PostIcons.STICKY, post.sticky);

@@ -185,6 +185,7 @@ public class ChanParser {
         if (post.capcodeSpan != null) {
             post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.capcodeSpan, " ");
         }
+
     }
 
     private CharSequence parseComment(Theme theme, Post post, String commentRaw) {
@@ -367,21 +368,24 @@ public class ChanParser {
 
     private CharSequence parseAnchor(Theme theme, Post post, Element anchor) {
         String href = anchor.attr("href");
+        String onclick = anchor.attr("onclick");
         Set<String> classes = anchor.classNames();
 
         PostLinkable.Type t = null;
         String key = null;
         Object value = null;
-        if (classes.contains("quotelink")) {
-            if (href.contains("/thread/")) {
+        if (onclick.contains("highlightReply")) {
+            if (href.contains("/reasds/")) {
                 // link to another thread
+
+                ///x/res/276.html#277
                 PostLinkable.ThreadLink threadLink = null;
 
                 String[] slashSplit = href.split("/");
                 if (slashSplit.length == 4) {
                     String board = slashSplit[1];
                     String nums = slashSplit[3];
-                    String[] numsSplitted = nums.split("#p");
+                    String[] numsSplitted = nums.split(".html#");
                     if (numsSplitted.length == 2) {
                         try {
                             int tId = Integer.parseInt(numsSplitted[0]);
@@ -401,7 +405,7 @@ public class ChanParser {
                 // normal quote
                 int id = -1;
 
-                String[] splitted = href.split("#p");
+                String[] splitted = href.split(".html#");
                 if (splitted.length == 2) {
                     try {
                         id = Integer.parseInt(splitted[1]);

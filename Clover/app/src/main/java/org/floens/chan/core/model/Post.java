@@ -56,7 +56,7 @@ public class Post {
 
     public String subject = "";
 
-    public long tim = -1;
+    public String tim = "";
 
     public String ext;
 
@@ -68,7 +68,7 @@ public class Post {
 
     public boolean hasImage = false;
 
-    public PostImage image;
+    public List<PostImage> image = new ArrayList<PostImage>() ;
 
     public String thumbnailUrl;
 
@@ -149,6 +149,7 @@ public class Post {
      * @return false if this data is invalid
      */
     public boolean finish() {
+
         if (board == null)
             return false;
 
@@ -157,12 +158,12 @@ public class Post {
 
         isOP = resto == 0;
 
-        if (isOP && (replies < 0 || images < 0))
-            return false;
+        //if (isOP && (replies < 0 || images < 0))
+        //    return false;
 
-        if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
+        if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0) {
             hasImage = true;
-            imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
+            imageUrl = ChanUrls.getImageUrl(board, tim, ext);
             filename = Parser.unescapeEntities(filename, false);
 
             if (spoiler) {
@@ -173,10 +174,11 @@ public class Post {
                     thumbnailUrl = ChanUrls.getSpoilerUrl();
                 }
             } else {
-                thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
+                thumbnailUrl = ChanUrls.getThumbnailUrl(board, tim, ext);
             }
 
-            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
+            //image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
+            image.add(new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize));
         }
 
         if (!TextUtils.isEmpty(country)) {

@@ -168,13 +168,13 @@ public class BoardManager {
 
     private List<Board> getDefaultBoards() {
         List<Board> list = new ArrayList<>();
-        list.add(new Board("Technology", "g", true, true));
-        list.add(new Board("Video Games", "v", true, true));
-        list.add(new Board("Anime & Manga", "a", true, true));
-        list.add(new Board("Comics & Cartoons", "co", true, true));
+        list.add(new Board("Aleatorio", "b", true, true));
+        //list.add(new Board("Video Games", "v", true, true));
+        //list.add(new Board("Anime & Manga", "a", true, true));
+        //list.add(new Board("Comics & Cartoons", "co", true, true));
         list.add(new Board("International", "int", true, true));
-        list.add(new Board("Sports", "sp", true, true));
-        list.add(new Board("Television & Film", "tv", true, true));
+        //list.add(new Board("Sports", "sp", true, true));
+        //list.add(new Board("Television & Film", "tv", true, true));
 
         Collections.shuffle(list);
 
