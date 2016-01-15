@@ -21,10 +21,12 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.StrictMode;
+import android.view.ViewConfiguration;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.cache.FileCache;
@@ -37,9 +39,9 @@ import org.floens.chan.core.net.ProxiedHurlStack;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
@@ -55,12 +57,13 @@ public class Chan extends Application {
 
     private static Chan instance;
     private static RequestQueue volleyRequestQueue;
-    private static ImageLoader imageLoader;
+    private static com.android.volley.toolbox.ImageLoader imageLoader;
     private static BoardManager boardManager;
     private static WatchManager watchManager;
     private static ReplyManager replyManager;
     private static DatabaseManager databaseManager;
     private static FileCache fileCache;
+    private static RefWatcher refWatcher;
 
     private String userAgent;
     private int activityForegroundCounter = 0;
@@ -102,22 +105,51 @@ public class Chan extends Application {
         return fileCache;
     }
 
+    public static RefWatcher getRefWatcher() {
+        return refWatcher;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        final long startTime = Time.startTiming();
+        // Force the overflow button to show, even on devices that have a
+        // physical button.
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+        }
+
+        if (ChanBuild.DEVELOPER_MODE) {
+//            refWatcher = LeakCanary.install(this);
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectNetwork().penaltyLog().build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+        }
 
         AndroidUtils.init();
 
         ChanUrls.loadScheme(ChanSettings.networkHttps.get());
 
-        userAgent = createUserAgent();
+        // User agent is <appname>/<version>
+        String version = "";
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
+        userAgent = getString(R.string.app_name) + "/" + version;
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 
-        replyManager = new ReplyManager(this, userAgent);
+        replyManager = new ReplyManager(this);
 
+        String userAgent = getUserAgent();
         volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
 
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
@@ -130,25 +162,6 @@ public class Chan extends Application {
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();
         watchManager = new WatchManager(this);
-
-        Time.endTiming("Initializing application", startTime);
-
-        // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (ChanBuild.DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(
-                    new StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .detectNetwork()
-                            .detectDiskReads()
-                            .detectDiskWrites()
-                            .penaltyLog()
-                            .build());
-            StrictMode.setVmPolicy(
-                    new StrictMode.VmPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog()
-                            .build());
-        }
     }
 
     public String getUserAgent() {
@@ -188,17 +201,5 @@ public class Chan extends Application {
         public ForegroundChangedMessage(boolean inForeground) {
             this.inForeground = inForeground;
         }
-    }
-
-    private String createUserAgent() {
-        // User agent is <appname>/<version>
-        String version = "Unknown";
-        try {
-            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Logger.e(TAG, "Error getting app version", e);
-        }
-        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
-        return getString(R.string.app_name) + "/" + version;
     }
 }

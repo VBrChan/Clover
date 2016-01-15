@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.net;
 
+import android.provider.DocumentsContract;
+import android.renderscript.Element;
 import android.util.JsonReader;
 
 import com.android.volley.Response.ErrorListener;
@@ -30,7 +32,11 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -322,9 +328,16 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 case "embed":
                     String teste = reader.nextString();
 
-                    post.tim = "Y0xQjJ8-ooA";
+                    Document doc = Jsoup.parse(teste);
+                    org.jsoup.nodes.Element a = doc.select("img").first();
+
+                    if (a == null)
+                        break;
+
+                    String[] urlSplitted = a.attr("src").split("/");
+                    post.tim = urlSplitted[4];
                     String linkteste;
-                    String linkyoutube = "https://www.youtube.com/Y0xQjJ8-ooA";
+                    String linkyoutube = "https://www.youtube.com/watch?v="+ post.tim;
                     linkteste = " <br/><br/>" +
                                     " <a " +
                                         " href=\"http://privatelink.de/?"+ linkyoutube +"\" " +
@@ -340,10 +353,54 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                         post.rawComment = post.rawComment.concat(linkteste);
                     }
 
-                    post.filename = "TESTE";
+                    post.filename = post.tim;
                     post.ext = "yutb";
                     post.imageHeight = 640;
                     post.imageWidth = 480;
+                    break;
+                case "extra_files":
+                    reader.beginArray();
+                    while(reader.hasNext()){
+                        reader.beginObject();
+                        Post.ImageData imageHelper = new Post.ImageData();
+                        while(reader.hasNext()){
+                            String extrakey = reader.nextName();
+
+                            switch (extrakey){
+                                case "filename":
+                                    imageHelper.originalFilename = reader.nextString();
+                                    break;
+                                case "tim":
+                                    imageHelper.serverFilename = reader.nextString();
+                                    break;
+                                case "ext":
+                                    imageHelper.ext = reader.nextString().replace(".", "");
+                                    break;
+                                case "h":
+                                    imageHelper.height = reader.nextInt();
+                                    break;
+                                case "w":
+                                    imageHelper.width = reader.nextInt();
+                                    break;
+                                case "tn_h":
+                                    imageHelper.thumbHeight = reader.nextInt();
+                                    break;
+                                case "tn_w":
+                                    imageHelper.thumbWidth = reader.nextInt();
+                                    break;
+                                case "fsize":
+                                    imageHelper.fileSize = reader.nextLong();
+                                    break;
+                                default:
+                                    reader.skipValue();
+                                    break;
+                            }
+                        }
+                        post.imageHelper.add(imageHelper);
+                        reader.endObject();
+                        //post.image.add(new PostImage(post.tim, post.thumbnailUrl, post.imageUrl, post.filename, post.ext, post.imageWidth, post.imageHeight, post.spoiler, post.fileSize));
+                    }
+                    reader.endArray();
                     break;
                 default:
                     // Unknown/ignored key

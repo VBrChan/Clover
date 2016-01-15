@@ -52,9 +52,6 @@ public class PostImage {
             case "webm":
                 type = Type.MOVIE;
                 break;
-            case "yutb":
-                type = Type.STATIC;
-                break;
             case "mp4":
                 type = Type.MOVIE;
                 break;

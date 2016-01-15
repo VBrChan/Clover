@@ -90,6 +90,10 @@ public class ChanUrls {
         }
     }
 
+    public  static String getThumbnailAudio(){
+        return  scheme + "://" + urlName +"/static/audio.png";
+    }
+
     public static String getSpoilerUrl() {
         if (!brchanTeste){
             return scheme + "://s.4cdn.org/image/spoiler.png";

@@ -325,7 +325,7 @@ public class AndroidUtils {
     }
 
     public static boolean removeFromParentView(View view) {
-        if (view.getParent() instanceof ViewGroup && ((ViewGroup) view.getParent()).indexOfChild(view) >= 0) {
+        if (view.getParent() instanceof ViewGroup) {
             ((ViewGroup) view.getParent()).removeView(view);
             return true;
         } else {

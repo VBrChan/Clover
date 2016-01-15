@@ -39,6 +39,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Post {
     private static final Random random = new Random();
 
+    public static class ImageData{
+        public String ext;
+        public String serverFilename;
+        public String originalFilename;
+        public int width;
+        public int height;
+        public int thumbWidth;
+        public int thumbHeight;
+        public String url;
+        public String thumbUrl;
+        public Long fileSize;
+        public String extThumbnailUrl;
+        public String extFileName;
+        public String extImageUrl;
+
+    }
+
     // *** These next members don't get changed after finish() is called. Effectively final. ***
     public String board;
 
@@ -69,6 +86,8 @@ public class Post {
     public boolean hasImage = false;
 
     public List<PostImage> image = new ArrayList<PostImage>() ;
+
+    public List<ImageData> imageHelper = new ArrayList<ImageData>();
 
     public String thumbnailUrl;
 
@@ -161,7 +180,8 @@ public class Post {
         //if (isOP && (replies < 0 || images < 0))
         //    return false;
 
-        if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0) {
+        //if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0) {
+        if (filename != null && ext != null && (fileSize > 0 || (imageWidth > 0 && imageHeight > 0))) {
             hasImage = true;
             imageUrl = ChanUrls.getImageUrl(board, tim, ext);
             filename = Parser.unescapeEntities(filename, false);
@@ -174,11 +194,36 @@ public class Post {
                     thumbnailUrl = ChanUrls.getSpoilerUrl();
                 }
             } else {
-                thumbnailUrl = ChanUrls.getThumbnailUrl(board, tim, ext);
+                //Caso o arquivo seja mp3, e o thumbnail seja default
+                if (ext.compareTo("mp3") == 0 && imageWidth <= 0 && imageHeight <= 0){
+                    thumbnailUrl = ChanUrls.getThumbnailAudio();
+                }else{
+                    thumbnailUrl = ChanUrls.getThumbnailUrl(board, tim, ext);
+                }
+
             }
 
-            //image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
+            if (ext.compareTo("yutb")==0){
+                ext = "jpg";
+            }
+
             image.add(new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize));
+
+            for (int w = 0; w < imageHelper.size(); w++){
+                imageHelper.get(w).extImageUrl = ChanUrls.getImageUrl(board,imageHelper.get(w).serverFilename,imageHelper.get(w).ext);
+                imageHelper.get(w).extFileName = Parser.unescapeEntities(imageHelper.get(w).originalFilename, false);
+                //String extThumbnailUrl;
+
+                if (spoiler){
+                    imageHelper.get(w).extThumbnailUrl = ChanUrls.getSpoilerUrl();
+                }else{
+                    imageHelper.get(w).extThumbnailUrl = ChanUrls.getThumbnailUrl(board,imageHelper.get(w).serverFilename,imageHelper.get(w).ext);
+                }
+
+                imageUrl = imageHelper.get(w).extImageUrl;
+                //image.add(new PostImage(imageHelper.get(w).serverFilename, extThumbnailUrl, extImageUrl, extFileName, imageHelper.get(w).ext, imageHelper.get(w).width, imageHelper.get(w).height, spoiler, imageHelper.get(w).fileSize));
+                image.add(new PostImage(imageHelper.get(w).serverFilename, imageHelper.get(w).extThumbnailUrl, imageUrl, imageHelper.get(w).extFileName, imageHelper.get(w).ext, imageHelper.get(w).width, imageHelper.get(w).height, spoiler, imageHelper.get(w).fileSize));
+            }
         }
 
         if (!TextUtils.isEmpty(country)) {

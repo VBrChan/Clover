@@ -62,47 +62,52 @@ public class ReplyHttpCall extends HttpCall {
         MultipartBuilder formBuilder = new MultipartBuilder();
         formBuilder.type(MultipartBuilder.FORM);
 
-        formBuilder.addFormDataPart("mode", "regist");
-        formBuilder.addFormDataPart("pwd", password);
+        //formBuilder.addFormDataPart("mode", "regist");
 
         if (thread) {
-            formBuilder.addFormDataPart("resto", String.valueOf(reply.resto));
+            formBuilder.addFormDataPart("thread", String.valueOf(reply.resto));
         }
 
-        formBuilder.addFormDataPart("name", reply.name);
+        formBuilder.addFormDataPart("board", reply.board);
         formBuilder.addFormDataPart("email", reply.options);
 
         if (!thread && !TextUtils.isEmpty(reply.subject)) {
-            formBuilder.addFormDataPart("sub", reply.subject);
+            formBuilder.addFormDataPart("subject", reply.subject);
         }
-
-        formBuilder.addFormDataPart("com", reply.comment);
-
-        if (reply.captchaResponse != null) {
-            if (reply.captchaChallenge != null) {
-                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
-            } else {
-                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
-            }
-        }
+        formBuilder.addFormDataPart("post", reply.resto == 0 ? "Novo tópico" : "Responder");
+        formBuilder.addFormDataPart("body", reply.comment);
 
         if (reply.file != null) {
-            formBuilder.addFormDataPart("upfile", reply.fileName, RequestBody.create(
+            formBuilder.addFormDataPart("file", reply.fileName, RequestBody.create(
                     MediaType.parse("application/octet-stream"), reply.file
             ));
         }
 
-        if (reply.spoilerImage) {
+        formBuilder.addFormDataPart("password", password);
+
+       // formBuilder.addFormDataPart("name", reply.name);
+
+
+
+
+
+
+
+
+
+
+
+      /*  if (reply.spoilerImage) {
             formBuilder.addFormDataPart("spoiler", "on");
         }
-
+*/
         requestBuilder.url(ChanUrls.getReplyUrl(reply.board));
         requestBuilder.post(formBuilder.build());
 
-        if (reply.usePass) {
+  /*      if (reply.usePass) {
             requestBuilder.addHeader("Cookie", "pass_id=" + reply.passId);
         }
+        */
     }
 
     @Override

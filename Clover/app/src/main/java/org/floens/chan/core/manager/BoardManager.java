@@ -168,15 +168,46 @@ public class BoardManager {
 
     private List<Board> getDefaultBoards() {
         List<Board> list = new ArrayList<>();
-        list.add(new Board("Aleatorio", "b", true, true));
-        //list.add(new Board("Video Games", "v", true, true));
-        //list.add(new Board("Anime & Manga", "a", true, true));
-        //list.add(new Board("Comics & Cartoons", "co", true, true));
-        list.add(new Board("International", "int", true, true));
-        //list.add(new Board("Sports", "sp", true, true));
-        //list.add(new Board("Television & Film", "tv", true, true));
+        list.add(new Board("Bairrismo", "bairro", true, true));
+        list.add(new Board("Random", "b", true, true));
+        list.add(new Board("Discussões Aleatórias", "d", true,true));
+        list.add(new Board("Policamente Incorreto", "pol", true,true));
+        list.add(new Board("Moderação", "mod", true,true));
 
-        Collections.shuffle(list);
+
+        list.add(new Board("Online Multiplayer", "lan", true,true));
+        list.add(new Board("Jogos", "jo", true,true));
+        list.add(new Board("Cultura Nipônica", "jp", true,true));
+        list.add(new Board("Animes e Mangás", "am", true,true));
+
+
+        list.add(new Board("Cartoons & Comics", "hq", true,true));
+        list.add(new Board("Música", "mu", true,true));
+        list.add(new Board("Literatura", "lit", true,true));
+        list.add(new Board("Baw", "baw", true,true));
+        list.add(new Board("Brainstorming", "bs", true,true));
+        list.add(new Board("Estudos", "est", true,true));
+        list.add(new Board("Educação Física e Mental", "efm", true,true));
+        list.add(new Board("Esportes", "esp", true,true));
+        list.add(new Board("Programação", "prog", true,true));
+        list.add(new Board("Software, Hardware & Tecnologias", "tech", true,true));
+        list.add(new Board("Pale Blue Dot", "sagan", true,true));
+        list.add(new Board("Televisão & Cinema", "tv", true,true));
+        list.add(new Board("Veículos", "ve", true,true));
+        list.add(new Board("Sobrenatural", "x", true,true));
+        list.add(new Board("Drogas", "high", true,true));
+
+
+        list.add(new Board("Gay", "g", true,true));
+        list.add(new Board("Porn", "p", true,true));
+        list.add(new Board("Trap", "tr", true,true));
+        list.add(new Board("Regra 34", "34", true,true));
+
+
+        list.add(new Board("International", "int", true,true));
+        list.add(new Board("Teste", "teste", true,true));
+
+        //Collections.shuffle(list);
 
         return list;
     }

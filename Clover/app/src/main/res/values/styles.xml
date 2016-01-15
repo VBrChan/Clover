@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="colorAccent">#ff009688</item>
 
         <item name="android:windowBackground">@android:color/white</item>
+
         <item name="windowActionModeOverlay">true</item>
 
         <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
@@ -33,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="setting_description_bottom">@drawable/setting_description_bottom</item>
 
         <item name="backcolor">#ffffffff</item>
+
         <item name="backcolor_secondary">#fff5f5f5</item>
 
         <item name="android:textColor">#DE000000</item>
